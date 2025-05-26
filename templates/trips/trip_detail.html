@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Trip Header -->
+    <div class="card shadow-lg mb-5">
+        <div class="position-relative">
+            {% if trip.image %}
+                <img src="{{ trip.image.url }}" alt="{{ trip.name }}" class="card-img-top" style="height: 400px; object-fit: cover;">
+            {% endif %}
+            <div class="position-absolute bottom-0 start-0 w-100 p-4" style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                <h1 class="text-white mb-2">{{ trip.name }}</h1>
+                <div class="d-flex gap-3">
+                    <span class="badge bg-primary">{{ trip.category.name }}</span>
+                    <span class="badge bg-success">${{ trip.price_per_person|floatformat:2 }} per person</span>
+                    {% if trip.available_seats > 0 %}
+                        <span class="badge bg-info">{{ trip.available_seats }} seats available</span>
+                    {% else %}
+                        <span class="badge bg-danger">Sold Out</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3 class="mb-4">Trip Details</h3>
+                    <p class="lead">{{ trip.description }}</p>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-map-marker-alt text-primary me-2"></i>Departure</h5>
+                            <p>{{ trip.departure_location }}</p>
+                            
+                            <h5><i class="fas fa-calendar text-primary me-2"></i>Departure Date</h5>
+                            <p>{{ trip.departure_date|date:"F d, Y - H:i" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-map-marker-alt text-success me-2"></i>Destination</h5>
+                            <p>{{ trip.destination }}</p>
+                            
+                            <h5><i class="fas fa-calendar-check text-success me-2"></i>Return Date</h5>
+                            <p>{{ trip.return_date|date:"F d, Y - H:i" }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h4 class="text-center mb-4">Book This Trip</h4>
+                            <div class="d-grid gap-2">
+                                {% if trip.available_seats > 0 %}
+                                    <a href="{% url 'trips:make_reservation' trip.id %}" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-ticket-alt me-2"></i>Make Reservation
+                                    </a>
+                                {% else %}
+                                    <button class="btn btn-secondary btn-lg" disabled>
+                                        <i class="fas fa-ban me-2"></i>Sold Out
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if options %}
+            <div class="mt-5">
+                <h3 class="mb-4">Additional Options</h3>
+                <div class="row g-4">
+                    {% for option in options %}
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            {% if option.image %}
+                                <img src="{{ option.image.url }}" class="card-img-top" alt="{{ option.name }}" style="height: 200px; object-fit: cover;">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ option.name }}</h5>
+                                <p class="card-text">{{ option.description }}</p>
+                                <p class="card-text"><strong>${{ option.price|floatformat:2 }}</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

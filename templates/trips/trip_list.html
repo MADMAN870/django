@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Available Trips</h1>
+    <div class="row">
+        {% for trip in trips %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <img src="{{ trip.image.url }}" class="card-img-top" alt="{{ trip.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ trip.name }}</h5>
+                    <p class="card-text">{{ trip.description|truncatewords:30 }}</p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            From {{ trip.departure_location }} to {{ trip.destination }}
+                        </small>
+                    </p>
+                    <p class="card-text">Price: ${{ trip.price_per_person }}</p>
+                    <a href="{% url 'trips:trip_detail' trip.id %}" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">My Reservations</h2>
+    
+    {% if reservations %}
+        <div class="row">
+            {% for reservation in reservations %}
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ reservation.trip.name }}</h5>
+                            <div class="mb-3">
+                                <p class="mb-1"><strong>Departure:</strong> {{ reservation.trip.departure_date|date:"d M, Y H:i" }}</p>
+                                <p class="mb-1"><strong>Return:</strong> {{ reservation.trip.return_date|date:"d M, Y H:i" }}</p>
+                                <p class="mb-1"><strong>Number of Passengers:</strong> {{ reservation.number_of_persons }}</p>
+                                <p class="mb-1"><strong>Total Price:</strong> ${{ reservation.total_price }}</p>
+                                <p class="mb-0">
+                                    <strong>Status:</strong> 
+                                    <span class="badge {% if reservation.status == 'confirmed' %}bg-success{% elif reservation.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ reservation.status|title }}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>You don't have any reservations yet.
+            <a href="{% url 'trips:trip_list' %}" class="alert-link">Browse our trips</a> to make your first reservation!
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,527 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white p-4">
+                    <h2 class="mb-0">{{ trip.name }}</h2>
+                    <p class="mb-0">{{ trip.departure_location }} - {{ trip.destination }}</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <!-- Trip Schedule -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5>Departure</h5>
+                                <p class="mb-0">{{ trip.departure_date|date:"d M, Y" }}</p>
+                                <p class="mb-0">{{ trip.departure_date|date:"H:i" }}</p>
+                                <p class="text-muted">{{ trip.departure_location }}</p>
+                            </div>
+                            <div class="text-center">
+                                <i class="fas fa-plane fa-2x text-primary"></i>
+                                <p class="text-muted mb-0">{{ trip.duration }}</p>
+                            </div>
+                            <div class="text-end">
+                                <h5>Return</h5>
+                                <p class="mb-0">{{ trip.return_date|date:"d M, Y" }}</p>
+                                <p class="mb-0">{{ trip.return_date|date:"H:i" }}</p>
+                                <p class="text-muted">{{ trip.destination }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" action="{% url 'trips:make_reservation' trip.id %}">
+                        {% csrf_token %}
+                        
+                        <!-- Passenger Information -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">Passenger Information</h5>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Please enter your name exactly as it appears on your ID/passport to avoid issues at check-in.
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Title *</label>
+                                        <div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="title" id="mr" value="mr" required>
+                                                <label class="form-check-label" for="mr">Mr</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="title" id="mrs" value="mrs">
+                                                <label class="form-check-label" for="mrs">Mrs/Ms</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">First Name *</label>
+                                            <input type="text" class="form-control" name="first_name" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Last Name *</label>
+                                            <input type="text" class="form-control" name="last_name" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Email *</label>
+                                            <input type="email" class="form-control" name="email" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Phone Number *</label>
+                                            <div class="input-group">
+                                                <select class="form-select" style="max-width: 100px;" name="phone_code">
+                                                    <option value="+33">+33</option>
+                                                    <option value="+1">+1</option>
+                                                    <option value="+44">+44</option>
+                                                </select>
+                                                <input type="tel" class="form-control" name="phone" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Baggage Selection -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">Baggage Selection</h5>
+                            <div class="card">
+                                <div class="card-body">
+                                    <!-- Personal Item -->
+                                    <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+                                        <img src="{% static 'images/personal-item.png' %}" alt="Personal Item" class="me-3" style="width: 40px;">
+                                        <div>
+                                            <h6 class="mb-1">Personal Item</h6>
+                                            <p class="text-muted mb-0">Must fit under the seat in front of you</p>
+                                            <span class="badge bg-success">Included</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Cabin Baggage -->
+                                    <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+                                        <img src="{% static 'images/cabin-bag.png' %}" alt="Cabin Bag" class="me-3" style="width: 40px;">
+                                        <div>
+                                            <h6 class="mb-1">Cabin Baggage</h6>
+                                            <p class="text-muted mb-0">1 x 10 kg bag</p>
+                                            <span class="badge bg-success">Included</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Checked Baggage -->
+                                    <div class="d-flex align-items-center">
+                                        <img src="{% static 'images/checked-bag.png' %}" alt="Checked Baggage" class="me-3" style="width: 40px;">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">Checked Baggage</h6>
+                                            <p class="text-muted mb-2">Select your checked baggage allowance</p>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="radio" name="checked_baggage" id="no_baggage" value="none" checked>
+                                                <label class="form-check-label" for="no_baggage">
+                                                    No checked baggage
+                                                </label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="radio" name="checked_baggage" id="one_bag" value="one">
+                                                <label class="form-check-label" for="one_bag">
+                                                    1 x 23 kg bag <span class="text-primary">($89)</span>
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="checked_baggage" id="two_bags" value="two">
+                                                <label class="form-check-label" for="two_bags">
+                                                    2 x 23 kg bags <span class="text-primary">($223)</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Travel Add-ons -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">Travel Add-ons</h5>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <div class="card h-100">
+                                                <div class="card-body">
+                                                    <h6>Standard</h6>
+                                                    <ul class="list-unstyled mb-3">
+                                                        <li><i class="fas fa-check text-success me-2"></i>Premium Assistance</li>
+                                                        <li><i class="fas fa-check text-success me-2"></i>Delay Protection</li>
+                                                        <li><i class="fas fa-times text-danger me-2"></i>SMS Updates</li>
+                                                    </ul>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="travel_addon" id="standard" value="standard">
+                                                        <label class="form-check-label" for="standard">
+                                                            $30 per person
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card h-100">
+                                                <div class="card-body">
+                                                    <h6>Premium</h6>
+                                                    <ul class="list-unstyled mb-3">
+                                                        <li><i class="fas fa-check text-success me-2"></i>Premium Assistance</li>
+                                                        <li><i class="fas fa-check text-success me-2"></i>Delay Protection</li>
+                                                        <li><i class="fas fa-check text-success me-2"></i>SMS Updates</li>
+                                                    </ul>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="travel_addon" id="premium" value="premium">
+                                                        <label class="form-check-label" for="premium">
+                                                            $33 per person
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card h-100">
+                                                <div class="card-body">
+                                                    <h6>Premium+</h6>
+                                                    <ul class="list-unstyled mb-3">
+                                                        <li><i class="fas fa-check text-success me-2"></i>Premium Assistance</li>
+                                                        <li><i class="fas fa-check text-success me-2"></i>Delay Protection</li>
+                                                        <li><i class="fas fa-check text-success me-2"></i>SMS Updates</li>
+                                                        <li><i class="fas fa-check text-success me-2"></i>Booking Updates</li>
+                                                    </ul>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="travel_addon" id="premium_plus" value="premium_plus">
+                                                        <label class="form-check-label" for="premium_plus">
+                                                            $36 per person
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Travel Class Selection -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">Select Travel Class</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="card h-100 {% if form.travel_class.value == 'economic' %}border-primary{% endif %}">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="travel_class" value="economic" id="economic" {% if form.travel_class.value == 'economic' %}checked{% endif %}>
+                                                <label class="form-check-label" for="economic">
+                                                    <h6 class="mb-1">Economic</h6>
+                                                    <p class="mb-1 text-muted">Standard seating</p>
+                                                    <strong>${{ trip.economic_price }}</strong>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card h-100 {% if form.travel_class.value == 'flexible' %}border-primary{% endif %}">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="travel_class" value="flexible" id="flexible" {% if form.travel_class.value == 'flexible' %}checked{% endif %}>
+                                                <label class="form-check-label" for="flexible">
+                                                    <h6 class="mb-1">Flexible</h6>
+                                                    <p class="mb-1 text-muted">Premium seating + Flexible changes</p>
+                                                    <strong>${{ trip.flexible_price }}</strong>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Baggage Options -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">Baggage Options</h5>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="fas fa-suitcase fa-2x text-primary me-3"></i>
+                                        <div>
+                                            <h6 class="mb-1">Included in your ticket:</h6>
+                                            <p class="mb-0">1 Cabin bag (8kg) + 1 Personal item</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="extra_baggage" id="extraBaggage">
+                                        <label class="form-check-label" for="extraBaggage">
+                                            Add checked baggage (23kg) - $30
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Number of Passengers -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">Number of Passengers</h5>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Adults (12+ years)</label>
+                                            <div class="input-group">
+                                                <button type="button" class="btn btn-outline-secondary" onclick="decrementPassenger('adult')">-</button>
+                                                <input type="number" class="form-control text-center" name="adult_count" id="adultCount" value="1" min="1" max="9" readonly>
+                                                <button type="button" class="btn btn-outline-secondary" onclick="incrementPassenger('adult')">+</button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Children (2-11 years)</label>
+                                            <div class="input-group">
+                                                <button type="button" class="btn btn-outline-secondary" onclick="decrementPassenger('child')">-</button>
+                                                <input type="number" class="form-control text-center" name="child_count" id="childCount" value="0" min="0" max="9" readonly>
+                                                <button type="button" class="btn btn-outline-secondary" onclick="incrementPassenger('child')">+</button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Infants (0-2 years)</label>
+                                            <div class="input-group">
+                                                <button type="button" class="btn btn-outline-secondary" onclick="decrementPassenger('infant')">-</button>
+                                                <input type="number" class="form-control text-center" name="infant_count" id="infantCount" value="0" min="0" max="9" readonly>
+                                                <button type="button" class="btn btn-outline-secondary" onclick="incrementPassenger('infant')">+</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Options -->
+                        {% if options %}
+                        <div class="mb-4">
+                            <h5 class="mb-3">Additional Options</h5>
+                            {{ form.selected_options }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Special Requests -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">Special Requests</h5>
+                            {{ form.special_requests }}
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-credit-card me-2"></i>Continue to Payment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Price Summary -->
+        <div class="col-lg-4">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Price Summary</h4>
+                    <div id="priceBreakdown">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Adults (x<span id="adultCountSummary">1</span>)</span>
+                            <strong id="adultPrice">${{ trip.price_per_person|floatformat:2 }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2" id="childPriceRow" style="display: none !important;">
+                            <span>Children (x<span id="childCountSummary">0</span>)</span>
+                            <strong id="childPrice">$0.00</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2" id="infantPriceRow" style="display: none !important;">
+                            <span>Infants (x<span id="infantCountSummary">0</span>)</span>
+                            <strong id="infantPrice">$0.00</strong>
+                        </div>
+                        <div id="extraBaggagePrice" class="d-flex justify-content-between mb-2 d-none">
+                            <span>Extra Baggage</span>
+                            <strong>$30.00</strong>
+                        </div>
+                        <div id="assurancePrice" class="d-flex justify-content-between mb-2 d-none">
+                            <span>Assurance voyage</span>
+                            <strong>40€</strong>
+                        </div>
+                        <div id="bagagesServicePrice" class="d-flex justify-content-between mb-2 d-none">
+                            <span>Service bagages perdus</span>
+                            <strong>7€</strong>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <h5>Total</h5>
+                            <h5 id="totalPrice">${{ trip.price_per_person|floatformat:2 }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const basePrice = {{ trip.price_per_person|default:0 }};
+    const personInput = document.querySelector('input[name="number_of_persons"]');
+    const classInputs = document.querySelectorAll('input[name="travel_class"]');
+    const extraBaggageCheckbox = document.getElementById('extraBaggage');
+    const extraBaggagePriceDiv = document.getElementById('extraBaggagePrice');
+    const totalPriceElement = document.getElementById('totalPrice');
+    const basePriceElement = document.getElementById('basePrice');
+    const assuranceRadios = document.querySelectorAll('input[name="assurance"]');
+    const bagagesRadios = document.querySelectorAll('input[name="bagages"]');
+
+    function updateTotalPrice() {
+        let total = 0;
+        const persons = parseInt(personInput.value) || 1;
+        const selectedClass = document.querySelector('input[name="travel_class"]:checked').value;
+        
+        // Base price calculation
+        if (selectedClass === 'economic') {
+            total = {{ trip.economic_price|default:0 }} * persons;
+            basePriceElement.textContent = '€{{ trip.economic_price|floatformat:2 }}';
+        } else {
+            total = {{ trip.flexible_price|default:0 }} * persons;
+            basePriceElement.textContent = '€{{ trip.flexible_price|floatformat:2 }}';
+        }
+
+        // Add baggage price if selected
+        if (extraBaggageCheckbox.checked) {
+            total += 30 * persons;
+            extraBaggagePriceDiv.classList.remove('d-none');
+        } else {
+            extraBaggagePriceDiv.classList.add('d-none');
+        }
+
+        // Add insurance price if selected
+        if (document.querySelector('input[name="assurance"]:checked').value === 'oui') {
+            total += 40 * persons;
+        }
+
+        // Add lost baggage service price if selected
+        if (document.querySelector('input[name="bagages"]:checked').value === 'oui') {
+            total += 7 * persons;
+        }
+
+        totalPriceElement.textContent = '€' + total.toFixed(2);
+    }
+
+    // Add event listeners
+    personInput.addEventListener('change', updateTotalPrice);
+    classInputs.forEach(input => input.addEventListener('change', updateTotalPrice));
+    extraBaggageCheckbox.addEventListener('change', updateTotalPrice);
+    assuranceRadios.forEach(radio => radio.addEventListener('change', updateTotalPrice));
+    bagagesRadios.forEach(radio => radio.addEventListener('change', updateTotalPrice));
+    
+    // Set initial price based on default selected class
+    updateTotalPrice();
+});
+</script>
+{% endblock %}
+
+                        <!-- Services Supplémentaires -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">Services Supplémentaires</h5>
+                            
+                            <!-- Assurance Voyage -->
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <h6 class="mb-2">Assurance voyage</h6>
+                                            <p class="text-muted mb-2">Des urgences médicales aux perturbations de vol, nous avons ce qu'il vous faut.</p>
+                                            <ul class="list-unstyled mb-3">
+                                                <li><i class="fas fa-check text-success me-2"></i>Frais médicaux d'urgence inclus, plus assistance médicale directe 24h/24, 7j/7</li>
+                                                <li><i class="fas fa-check text-success me-2"></i>Protection contre les retards, la perte de bagages, le vol de documents ou les perturbations de vol</li>
+                                                <li><i class="fas fa-check text-success me-2"></i>Couvre l'hébergement si votre dernier vol aller est retardé ou annulé</li>
+                                            </ul>
+                                            <button class="btn btn-link p-0" type="button" data-bs-toggle="collapse" data-bs-target="#assuranceDetails">
+                                                Plus d'informations
+                                            </button>
+                                            <div class="collapse mt-3" id="assuranceDetails">
+                                                <div class="card card-body bg-light">
+                                                    <p>Une protection complète pour voyager sans stress. Inclut une protection de 28 jours couvrant les urgences médicales, les retards de vol, la perte de bagages et même le vol de documents. Mais aussi, une ligne d'assistance directe disponible 24h/24, 7j/7, une protection hébergement en cas de retard et plus encore.</p>
+                                                    <ul class="list-unstyled mb-3">
+                                                        <li><i class="fas fa-check text-success me-2"></i>Protection de 100 000 EUR pour les urgences médicales, et jusqu'à 5 000 EUR pour vous permettre de rentrer chez vous</li>
+                                                        <li><i class="fas fa-check text-success me-2"></i>Couvre les retards, les perturbation de vol et même la responsabilité individuelle</li>
+                                                        <li><i class="fas fa-check text-success me-2"></i>Soyez protégé(e) même si vous décidez d'annuler votre vol en raison d'un retard de plus de 36 heures</li>
+                                                        <li><i class="fas fa-check text-success me-2"></i>Valable 14 jours pour un aller simple et jusqu'à 28 jours pour un vol aller-retour</li>
+                                                        <li><i class="fas fa-info-circle text-primary me-2"></i>Disponible uniquement pour les citoyens européens</li>
+                                                    </ul>
+                                                    <div class="d-flex gap-2">
+                                                        <a href="#" class="btn btn-outline-primary btn-sm">Informations produit (pdf)</a>
+                                                        <a href="#" class="btn btn-outline-primary btn-sm">Conditions de l'assurance (pdf)</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <p class="mb-2">Seulement</p>
+                                            <h5 class="mb-3">40€</h5>
+                                            <div class="btn-group" role="group">
+                                                <input type="radio" class="btn-check" name="assurance" id="assurance_non" value="non" checked>
+                                                <label class="btn btn-outline-secondary" for="assurance_non">Non merci</label>
+                                                <input type="radio" class="btn-check" name="assurance" id="assurance_oui" value="oui">
+                                                <label class="btn btn-outline-primary" for="assurance_oui">Ajouter au panier</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Service Bagages Perdus -->
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-2">Service bagages perdus</h6>
+                                            <ul class="list-unstyled mb-3">
+                                                <li><i class="fas fa-check text-success me-2"></i>Suivez le statut de vos bagages en temps réel et recevez des notifications</li>
+                                                <li><i class="fas fa-check text-success me-2"></i>Recevez 500 dollars US par bagage non livré dans les 96 heures</li>
+                                                <li><i class="fas fa-check text-success me-2"></i>Service complémentaire à vos autres assurances</li>
+                                            </ul>
+                                            <button class="btn btn-link p-0" type="button" data-bs-toggle="collapse" data-bs-target="#bagagesDetails">
+                                                Plus d'informations
+                                            </button>
+                                            <div class="collapse mt-3" id="bagagesDetails">
+                                                <div class="card card-body bg-light">
+                                                    <p>Fourni en partenariat avec Blue Ribbon, ce service couvrira les bagages enregistrés de tous les passagers inclus dans votre réservation.</p>
+                                                    <ul class="list-unstyled mb-3">
+                                                        <li><i class="fas fa-check text-success me-2"></i>Suivi des bagages en temps réel par SMS</li>
+                                                        <li><i class="fas fa-check text-success me-2"></i>Indemnisation de 500 dollars US par bagage (délai > 96h)</li>
+                                                        <li><i class="fas fa-check text-success me-2"></i>Réclamation simple en ligne</li>
+                                                        <li><i class="fas fa-info-circle text-primary me-2"></i>Signalement sous 24h requis</li>
+                                                    </ul>
+                                                    <a href="#" class="btn btn-outline-primary btn-sm">Conditions générales Blue Ribbon</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <p class="mb-2">Seulement</p>
+                                            <h5 class="mb-3">7€</h5>
+                                            <div class="btn-group" role="group">
+                                                <input type="radio" class="btn-check" name="bagages" id="bagages_non" value="non" checked>
+                                                <label class="btn btn-outline-secondary" for="bagages_non">Non merci</label>
+                                                <input type="radio" class="btn-check" name="bagages" id="bagages_oui" value="oui">
+                                                <label class="btn btn-outline-primary" for="bagages_oui">Ajouter au panier</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
